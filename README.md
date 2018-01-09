@@ -37,8 +37,7 @@ Recommended way:
 
 
 (m/defstate client
-  :start (when nakadi-url
-           (nakadi/make-client nakadi-url (fn [] access-token))))
+  :start (nakadi/make-client nakadi-url (fn [] access-token)))
 
 
 (defn callback [event]
