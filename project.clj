@@ -1,4 +1,4 @@
-(defproject me.dryewo/clj-nakadi-java "0.0.2"
+(defproject me.dryewo/clj-nakadi-java "0.0.3"
   :description "Nakadi client in Clojure. Thin wrapper around nakadi-java."
   :url "http://github.com/dryewo/clj-nakadi-java"
   :license {:name "Eclipse Public License"

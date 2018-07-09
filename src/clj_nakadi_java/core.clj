@@ -47,18 +47,36 @@
     (typeLiteral [_] TypeLiterals/OF_STRING)))
 
 
-(defn ->subscription-stream-config [subscription-id-or-stream-config]
-  (if (string? subscription-id-or-stream-config)
-    (-> (StreamConfiguration.)
-        (.subscriptionId subscription-id-or-stream-config))
-    (do
-      (assert (.subscriptionId subscription-id-or-stream-config)
-              "Stream configuration must include subscriptionId.")
-      subscription-id-or-stream-config)))
+(defn set-param
+  "Sets properties of a StreamConfiguration instance.
+  Takes the value of key from config-map and uses the supplied
+  method to update the instance of StreamConfiguration.
+  Parameters are optional by default."
+  ([StreamConfiguration, config-map, key, method, required]
+   (if-let [value (key config-map)]
+     (method StreamConfiguration value)
+     (do
+       (if required
+         (assert (key config-map) (format "Stream configuration must include %s" key))
+         StreamConfiguration))))
+
+  ([StreamConfiguration, config-map, key, method]
+   (set-param StreamConfiguration config-map key method false)))
 
 
-(defn consume-subscription [client subscription-id-or-stream-config callback]
-  (let [stream-config    (->subscription-stream-config subscription-id-or-stream-config)
+(defn ->subscription-stream-config [config-map]
+  (-> (StreamConfiguration.)
+      (set-param config-map :subscription-id #(.subscriptionId % %2) true)  ;; required
+      (set-param config-map :batch-limit #(.batchLimit % %2))
+      (set-param config-map :max-retry-attempts #(.maxRetryAttempts % %2))
+      (set-param config-map :max-uncommitted-events #(.maxUncommittedEvents % %2))
+      (set-param config-map :stream-keep-alive-limit #(.streamKeepAliveLimit % %2))
+      (set-param config-map :stream-limit #(.streamLimit % %2))
+      ))
+
+
+(defn consume-subscription [client config-map callback]
+  (let [stream-config    (->subscription-stream-config config-map)
         stream-processor (-> client
                              (.resources)
                              (.streamBuilder stream-config)
