@@ -1,5 +1,6 @@
 (ns clj-nakadi-java.core
-  (:require [cheshire.core :as json])
+  (:require [cheshire.core :as json]
+            [clojure.reflect :as r])
   (:import (nakadi NakadiClient
                    TokenProvider
                    TypeLiterals
@@ -47,37 +48,35 @@
     (typeLiteral [_] TypeLiterals/OF_STRING)))
 
 
-(defn set-param
-  "Sets properties of a StreamConfiguration instance.
-  Takes the value of key from config-map and uses the supplied
-  method to update the instance of StreamConfiguration.
-  Parameters are optional by default."
-  ([StreamConfiguration, config-map, key, method, required]
-   (if-let [value (key config-map)]
-     (method StreamConfiguration value)
-     (do
-       (if required
-         (assert (key config-map) (format "Stream configuration must include %s" key))
-         StreamConfiguration))))
+(defn method-exists? [method]
+  (first (filter #(= (str (:name %)) method) (:members (r/reflect StreamConfiguration)))))
 
-  ([StreamConfiguration, config-map, key, method]
-   (set-param StreamConfiguration config-map key method false)))
+
+(defn ->camel-case [kebab]
+  (let [a (clojure.string/split (name kebab) #"\-")]
+    (str (first a) (apply str (map clojure.string/capitalize (rest a))))))
+ 
+
+(defn str-invoke [instance method-str & args]
+  (clojure.lang.Reflector/invokeInstanceMethod
+   instance
+   method-str
+   (to-array args)))
+
+
+(defn set-param [streamConfigInstance k v]
+  (let [method (->camel-case k)]
+    (if (method-exists? method)
+      (str-invoke streamConfigInstance method v)
+      streamConfigInstance)))
 
 
 (defn ->subscription-stream-config [config-map]
-  (-> (StreamConfiguration.)
-      (set-param config-map :subscription-id #(.subscriptionId % %2) true)  ;; required
-      (set-param config-map :batch-limit #(.batchLimit % %2))
-      (set-param config-map :max-retry-attempts #(.maxRetryAttempts % %2))
-      (set-param config-map :max-uncommitted-events #(.maxUncommittedEvents % %2))
-      (set-param config-map :stream-keep-alive-limit #(.streamKeepAliveLimit % %2))
-      (set-param config-map :stream-limit #(.streamLimit % %2))
-      ))
+  (reduce-kv set-param (StreamConfiguration.) config-map))
 
 
-(defn consume-subscription [client config-map callback]
-  (let [stream-config    (->subscription-stream-config config-map)
-        stream-processor (-> client
+(defn consume-subscription [client stream-config callback]
+  (let [stream-processor (-> client
                              (.resources)
                              (.streamBuilder stream-config)
                              (.streamObserverFactory (make-observer-provider callback))
