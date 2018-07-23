@@ -34,6 +34,7 @@ Recommended way:
 (cfg/def nakadi-url {:required true})
 (cfg/def subscription-id {:required true})
 (cfg/def access-token {:required true})
+(cfg/def batch-limit)
 
 
 (m/defstate client
@@ -47,6 +48,8 @@ Recommended way:
 (m/defstate consumer
   :start (do
            (nakadi/consume-subscription @client subscription-id callback)
+           ;(nakadi/consume-subscription @client {:subscription-id subscription-id :batch-limit batch-limit} callback)
+           ;(nakadi/consume-subscription @client stream-config callback)
            ;(nakadi/consume-raw-events @client "foobar.event" callback)
            )
   :stop (time (@consumer)))
@@ -57,7 +60,6 @@ Recommended way:
   (nakadi/publish-events @client "foobar.event" (for [i (range 10)]
                                                       {:x i})))
 ```
-
 
 ## License
 
