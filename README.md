@@ -47,7 +47,8 @@ Recommended way:
 
 (m/defstate consumer
   :start (do
-           (nakadi/consume-subscription @client (nakadi/->subscription-stream-config {:subscription-id subscription-id :batch-limit batch-limit}) callback)
+           (nakadi/consume-subscription @client subscription-id callback)
+           ;(nakadi/consume-subscription @client {:subscription-id subscription-id :batch-limit batch-limit} callback)
            ;(nakadi/consume-subscription @client stream-config callback)
            ;(nakadi/consume-raw-events @client "foobar.event" callback)
            )

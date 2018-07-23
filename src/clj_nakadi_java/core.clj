@@ -53,29 +53,39 @@
 
 
 (defn ->camel-case [kebab]
-  (let [a (clojure.string/split (name kebab) #"\-")]
-    (str (first a) (apply str (map clojure.string/capitalize (rest a))))))
- 
+  (let [name-parts (clojure.string/split (name kebab) #"\-")]
+    (str (first name-parts) (apply str (map clojure.string/capitalize (rest name-parts))))))
+
 
 (defn str-invoke [instance method-str & args]
-  (clojure.lang.Reflector/invokeInstanceMethod
-   instance
-   method-str
-   (to-array args)))
+  (clojure.lang.Reflector/invokeInstanceMethod instance method-str (to-array args)))
 
 
 (defn set-param [streamConfigInstance k v]
   (let [method (->camel-case k)]
-    (if (method-exists? method)
-      (str-invoke streamConfigInstance method v)
-      streamConfigInstance)))
+    (when (method-exists? method)
+      (str-invoke streamConfigInstance method v))
+    streamConfigInstance))
 
 
-(defn ->subscription-stream-config [config-map]
+(defn ->subscription-stream-config
+  "Converts a hash-map to an instance of StreamConfiguration.
+  Keys which do not correspond to variables of StreamConfiguration are ignored."
+  [config-map]
   (reduce-kv set-param (StreamConfiguration.) config-map))
 
 
-(defn consume-subscription [client stream-config callback]
+(defmulti consume-subscription
+  "Starts consuming a subscription.
+  Config can be either a string, a map, or an instance of StreamConfiguration.
+  Strings and maps are internally converted to instances of StreamConfiguration.
+  In case config is a map, its keys must correspond to the variables of StreamConfiguration.
+  In case config is a string, it must be the subscription id."
+  (fn [client config callback] (class config)))
+
+
+(defmethod consume-subscription nakadi.StreamConfiguration
+  [client stream-config callback]
   (let [stream-processor (-> client
                              (.resources)
                              (.streamBuilder stream-config)
@@ -83,6 +93,22 @@
                              (.build))]
     (.start stream-processor)
     (fn [] (.stop stream-processor))))
+
+
+(defmethod consume-subscription clojure.lang.PersistentArrayMap
+  [client config-map callback]
+  {:pre [(:subscription-id config-map)]}
+  (consume-subscription client (->subscription-stream-config config-map) callback))
+
+
+(defmethod consume-subscription java.lang.String
+  [client subscription-id callback]
+  (consume-subscription client (->subscription-stream-config {:subscription-id subscription-id}) callback))
+
+
+(defmethod consume-subscription :default
+  [client config callback]
+  (throw (AssertionError. "Invalid configuration. Configuration must either be a string, a map, or an instance of StreamConfiguration.")))
 
 
 (defn ->raw-event-stream-config [event-type-or-stream-config]
