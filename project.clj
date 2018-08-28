@@ -3,7 +3,7 @@
   :url "http://github.com/dryewo/clj-nakadi-java"
   :license {:name "Eclipse Public License"
             :url  "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[net.dehora.nakadi/nakadi-java-client "0.9.17"]
+  :dependencies [[net.dehora.nakadi/nakadi-java-client "0.10.0"]
                  [cheshire "5.8.0"]]
   :repositories [["bintray" {:url "https://dl.bintray.com/dehora/maven"}]]
   :plugins [[lein-cloverage "1.0.9"]
