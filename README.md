@@ -31,14 +31,14 @@ Recommended way:
             [clj-nakadi-java.core :as nakadi]))
 
 
-(cfg/def nakadi-url {:required true})
-(cfg/def subscription-id {:required true})
-(cfg/def access-token {:required true})
-(cfg/def batch-limit)
+(cfg/def NAKADI_URL {:required true})
+(cfg/def SUBSCRIPTION_ID {:required true})
+(cfg/def ACCESS_TOKEN {:required true})
+(cfg/def BATCH_LIMIT)
 
 
 (m/defstate client
-  :start (nakadi/make-client nakadi-url (fn [] access-token)))
+  :start (nakadi/make-client NAKADI_URL (fn [] ACCESS_TOKEN)))
 
 
 (defn callback [event]
@@ -47,8 +47,8 @@ Recommended way:
 
 (m/defstate consumer
   :start (do
-           (nakadi/consume-subscription @client subscription-id callback)
-           ;(nakadi/consume-subscription @client {:subscription-id subscription-id :batch-limit batch-limit} callback)
+           (nakadi/consume-subscription @client SUBSCRIPTION_ID callback)
+           ;(nakadi/consume-subscription @client {:subscription-id SUBSCRIPTION_ID :batch-limit BATCH_LIMIT} callback)
            ;(nakadi/consume-subscription @client stream-config callback)
            ;(nakadi/consume-raw-events @client "foobar.event" callback)
            )
