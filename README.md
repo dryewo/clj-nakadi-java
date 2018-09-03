@@ -17,8 +17,8 @@ Recommended way:
 (defproject my/project "0.1.0-SNAPSHOT"
     ...
   :dependencies [[org.clojure/clojure "1.9.0"]
-                 [functionalbytes/mount-lite "2.1.0"]
-                 [cyrus/config "0.1.0"]
+                 [functionalbytes/mount-lite "2.1.1"]
+                 [cyrus/config "0.2.2"]
                  [me.dryewo/clj-nakadi-java "0.0.4"]])
 ```
 
