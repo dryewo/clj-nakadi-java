@@ -5,7 +5,7 @@
 [Nakadi] client in Clojure. Thin wrapper around [nakadi-java].
 
 ```
-[me.dryewo/clj-nakadi-java "0.0.4"]
+[me.dryewo/clj-nakadi-java "0.0.5"]
 ```
 
 ## Usage
@@ -19,7 +19,7 @@ Recommended way:
   :dependencies [[org.clojure/clojure "1.9.0"]
                  [functionalbytes/mount-lite "2.1.1"]
                  [cyrus/config "0.2.2"]
-                 [me.dryewo/clj-nakadi-java "0.0.4"]])
+                 [me.dryewo/clj-nakadi-java "0.0.5"]])
 ```
 
 *my-project.clj:*
