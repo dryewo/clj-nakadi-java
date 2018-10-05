@@ -4,7 +4,7 @@
   :license {:name "Eclipse Public License"
             :url  "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[net.dehora.nakadi/nakadi-java-client "0.11.0"]
-                 [cheshire "5.8.0"]]
+                 [cheshire "5.8.1"]]
   :repositories [["bintray" {:url "https://dl.bintray.com/dehora/maven"}]]
   :plugins [[lein-cloverage "1.0.13"]
             [lein-shell "0.5.0"]
