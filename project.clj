@@ -3,9 +3,9 @@
   :url "http://github.com/dryewo/clj-nakadi-java"
   :license {:name "Eclipse Public License"
             :url  "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[net.dehora.nakadi/nakadi-java-client "0.13.0"]
+  :dependencies [[net.dehora.nakadi/nakadi-java-client "0.16.0"]
                  [cheshire "5.9.0"]]
-  :repositories [["bintray" {:url "https://dl.bintray.com/dehora/maven"}]]
+  :repositories [["sonatype" {:url "https://oss.sonatype.org/content/repositories/snapshots"}]]
   :plugins [[lein-cloverage "1.0.13"]
             [lein-shell "0.5.0"]
             [lein-ancient "0.6.15"]
